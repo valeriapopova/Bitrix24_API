@@ -1,4 +1,4 @@
-from itertools import chain
+from collections import defaultdict
 
 from bitrix24 import Bitrix24
 from flask import Flask, request, Response
@@ -41,13 +41,14 @@ def get_leads():
         url = json_file["url"]
         bx24 = Bitrix24(url)
         num = None
-        result_list = []
         r = {}
-        result = bx24.callMethod("crm.lead.list", filter={">=OPPORTUNITY": num}, select=['ID', 'TITLE', 'NAME', 'PHONE'])
-        for res in result:
-            result_list.append([{"id": res['ID']}, {"title": res['TITLE']}, {"name": res['NAME']},
-                                {"phone": res['PHONE'][0]['VALUE']}])
-        r['data'] = list(chain.from_iterable(result_list))
+        result = bx24.callMethod("crm.lead.list", filter={">=OPPORTUNITY": num}, select=["*"])
+        result_list = defaultdict(list)
+        for myd in result:
+            for k, v in myd.items():
+                result_list[k].append(v)
+
+        r['data'] = [result_list]
         return r
 
     except BadRequestKeyError:
