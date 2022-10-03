@@ -10,8 +10,6 @@ app = Flask(__name__)
 app.config.from_object(Configuration)
 
 
-
-
 @app.route('/bitrix/post', methods=['POST'])
 def post_bitrix():
 
