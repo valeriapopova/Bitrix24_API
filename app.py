@@ -117,6 +117,7 @@ def new_contact():
 
 @app.route('/bitrix/feed_message', methods=['POST'])
 def feed_message():
+    """Отправляет сообщение в ленту в Birix24 по url"""
     try:
         json_file = request.get_json(force=False)
         peer_id = json_file['data'][0]['peer_id']
@@ -139,6 +140,7 @@ def feed_message():
 
 @app.route('/bitrix/new_deal', methods=['POST'])
 def new_deal():
+    """Создает новую сделку"""
     try:
         json_file = request.get_json(force=False)
         order_id = json_file['order_id']
@@ -315,7 +317,12 @@ def search_user_by_id():
         id_ = json_file['data'][0]['id']
         r = {}
         result = bx24.callMethod("user.search", FILTER={"ID": id_, "USER_TYPE": "employee"})
-        r['data'] = [result]
+        result_list = defaultdict(list)
+        for myd in result:
+            for k, v in myd.items():
+                result_list[k].append(v)
+
+        r['data'] = [result_list]
         return r
 
     except BadRequestKeyError:
@@ -332,7 +339,12 @@ def search_user_by_email():
         bx24 = Bitrix24(url)
         r = {}
         result = bx24.callMethod("user.search", FILTER={"EMAIL": email, "USER_TYPE": "employee"})
-        r['data'] = [result]
+        result_list = defaultdict(list)
+        for myd in result:
+            for k, v in myd.items():
+                result_list[k].append(v)
+
+        r['data'] = [result_list]
         return r
 
     except BadRequestKeyError:
